@@ -52,6 +52,10 @@
 	 (css-file (cdr (assoc :css-file params)))
 	 (pupeteer-config-file (cdr (assoc :pupeteer-config-file params)))
          (temp-file (org-babel-temp-file "mermaid-"))
+	 (output-format (cdr (assoc :output-format params)))
+	 (scale (cdr (assoc :scale params)))
+	 ;; Default to t since pdfs are embedded by nature.
+	 (pdf-fit (alist-get :pdf-fit params t))
          (mmdc (or ob-mermaid-cli-path
                    (executable-find "mmdc")
                    (error "`ob-mermaid-cli-path' is not set and mmdc is not in `exec-path'")))
@@ -71,7 +75,12 @@
 		      (when css-file
 			(concat " -C " (org-babel-process-file-name css-file)))
                       (when pupeteer-config-file
-                        (concat " -p " (org-babel-process-file-name pupeteer-config-file))))))
+                        (concat " -p " (org-babel-process-file-name pupeteer-config-file)))
+		      (when output-format
+			(concat " -e " output-format))
+		      (when scale
+			(format " -s %s" scale))
+		      (when pdf-fit " -f "))))
     (unless (file-executable-p mmdc)
       ;; cannot happen with `executable-find', so we complain about
       ;; `ob-mermaid-cli-path'
